@@ -1,0 +1,13 @@
+[project]
+name = "twix-dl"
+version = "0.0.1"
+description = "An unofficial X scrapper and downloader"
+authors = [
+    { name="JellyTyan", email="jellytyan@jellytyan.de" }
+]
+readme = "README.md"
+license = { text = "MIT" }
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
