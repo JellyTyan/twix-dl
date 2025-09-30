@@ -1,6 +1,9 @@
 # TwiX-dl
 
+<img src=".github/assets/twix.png" height="300px"/>
+
 `twix-dl` is a Python library (and future CLI tool) for extracting tweet metadata and downloading all media attachments (photos, videos, GIFs) from a Twitter/X post.
+
 
 ## 📦 Installation
 
