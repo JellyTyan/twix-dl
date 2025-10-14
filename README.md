@@ -22,6 +22,8 @@ cd twix-dl
 pip install -e .
 ```
 
+
+
 ---
 
 ## 📚 Data Structures
@@ -30,22 +32,25 @@ pip install -e .
 @dataclass
 class AuthorData:
     id: str
+    rest_id: str
     name: str
     screen_name: str
     url: str
     avatar_url: str
+    profile_banner_url: str
     description: str
     is_blue_verified: bool
+    favourites_count: int
     followers_count: int
-    # ... more fields
 
 @dataclass
 class TweetMedia:
-    type: str             # "photo", "video", "gif"
-    url: str              # direct media URL
-    width: Optional[int]
-    height: Optional[int]
-    duration: Optional[int]  # for videos
+    type: Literal["photo", "video", "gif"]
+    url: str
+    width: Optional[int] = None
+    height: Optional[int] = None
+    duration: Optional[int] = None  # for videos/GIFs
+    size: Optional[int] = None      # file size in bytes
 
 @dataclass
 class TweetInfo:
@@ -54,8 +59,35 @@ class TweetInfo:
     full_text: Optional[str]
     author: AuthorData
     media: List[TweetMedia]
-    favorite_count: Optional[int]
-    retweet_count: Optional[int]
-    reply_count: Optional[int]
-    # ... more fields
+    favorite_count: Optional[int] = None
+    retweet_count: Optional[int] = None
+    reply_count: Optional[int] = None
+    quote_count: Optional[int] = None
+    lang: Optional[str] = None
+
+@dataclass
+class ErrorExtensions:
+    name: str
+    source: str
+    code: int
+    kind: str
+    trace_id: Optional[str] = None
+
+@dataclass
+class TwitterError:
+    """Twitter API error response"""
+    message: str
+    code: int
+    kind: str
+    name: str
+    source: str
+    trace_id: Optional[str]
+    extensions: ErrorExtensions
+
+@dataclass(frozen=True)
+class GraphQLOperation:
+    """GraphQL operation definition for Twitter API"""
+    variables_schema: Dict[str, Any]
+    operation_id: str
+    name: str
 ```
