@@ -1,14 +1,13 @@
 import asyncio
 from typing import Any, Dict
-from .models import TweetInfo
+from .models import TweetInfo, TwitterError
 from .async_client import AsyncTwitterClient
 
 class TwitterClient:
     """
-    Синхронная обертка над асинхронным клиентом.
-    Предоставляет пользователю привычный синхронный API.
-    """
-    def __init__(self, auth_token: str, timeout: int = 10):
+    Synchronous wrapper over asynchronous client.
+    Provides user with familiar synchronous API.    """
+    def __init__(self, timeout: int = 10):
         self._async_client = AsyncTwitterClient()
         
         try:
@@ -18,18 +17,17 @@ class TwitterClient:
             asyncio.set_event_loop(self._loop)
 
     def _run_async(self, coro):
-        """Хелпер для запуска асинхронной функции в event loop."""
+        """Helper for running asynchronous function"""
         return self._loop.run_until_complete(coro)
 
-    def get_tweet(self, tweet_id: str) -> TweetInfo:
+    def get_tweet(self, tweet_id: int) -> TweetInfo | TwitterError:
         """
-        Синхронно получает данные одного твита.
+        Synchronously retrieves data from a single tweet.
         """
-        print("Выполняется синхронный вызов (через async)...")
         return self._run_async(self._async_client.get_tweet_info(tweet_id))
     
     def close(self):
-        """Закрывает сессию."""
+        """Closes the session."""
         self._run_async(self._async_client.close())
         
     def __enter__(self):
