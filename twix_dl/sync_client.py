@@ -1,6 +1,6 @@
 import asyncio
 from typing import Any, Dict
-from .models import TweetInfo, TwitterError
+from .models import TweetInfo, TwitterError, UserData
 from .async_client import AsyncTwitterClient
 
 class TwitterClient:
@@ -20,11 +20,17 @@ class TwitterClient:
         """Helper for running asynchronous function"""
         return self._loop.run_until_complete(coro)
 
-    def get_tweet(self, tweet_id: int) -> TweetInfo | TwitterError:
+    def get_tweet_info(self, tweet_id: int) -> TweetInfo | TwitterError:
         """
         Synchronously retrieves data from a single tweet.
         """
         return self._run_async(self._async_client.get_tweet_info(tweet_id))
+    
+    def get_user_by_username(self, screen_name: str) -> UserData | TwitterError:
+        """
+        Synchronously retrieves user data by screen name.
+        """
+        return self._run_async(self._async_client.get_user_by_username(screen_name))
     
     def close(self):
         """Closes the session."""

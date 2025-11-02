@@ -5,21 +5,29 @@ from enum import Enum
 
 
 @dataclass(slots=True)
-class AuthorData:
-    """Metadata about the tweet author."""
-    id: str                  # Twitter internal numeric ID
-    rest_id: str             # String version of ID (redundant but present in API)
-    name: str                # Display name (e.g. "Elon Musk")
-    screen_name: str         # @handle
-    url: str                 # Link to profile
-    avatar_url: str          # Profile picture
-    profile_banner_url: str  # Header banner
-    description: str         # Bio text
-
-    is_blue_verified: bool   # X Blue / Verified status
-
-    favourites_count: int    # How many likes author has given
-    followers_count: int     # How many followers they have
+class UserData:
+    """Twitter user metadata."""
+    id: str                     # Twitter internal ID
+    rest_id: str               # String version of ID
+    name: str                  # Display name
+    screen_name: str           # @handle
+    description: str           # Bio text
+    location: Optional[str]    # User location
+    
+    avatar_url: str            # Profile picture
+    profile_banner_url: str    # Header banner
+    profile_url: Optional[str] # Website URL
+    
+    is_blue_verified: bool     # X Blue verification
+    is_verified: bool          # Legacy verification
+    is_protected: bool         # Private account
+    
+    followers_count: int       # Followers
+    following_count: int       # Following (friends_count)
+    favourites_count: int      # Likes given
+    statuses_count: int        # Tweets posted
+    
+    created_at: str            # Account creation date
 
 
 @dataclass(slots=True)
@@ -41,7 +49,7 @@ class TweetInfo:
     url: str
     full_text: Optional[str]
 
-    author: AuthorData
+    author: UserData
     media: List[TweetMedia] = field(default_factory=list)
 
     favorite_count: Optional[int] = None
@@ -91,6 +99,7 @@ class GraphQLOperation:
 
 class TwitterOp(Enum):
     TweetResultByRestId = GraphQLOperation({'tweetId': int}, 'WvlrBJ2bz8AuwoszWyie8A', 'TweetResultByRestId')
+    UserByScreenName = GraphQLOperation({'screen_name': str}, 'ZHSN3WlvahPKVvUxVQbg1A', 'UserByScreenName')
 
 # Core query variables
 _CORE_VARS = {
@@ -114,6 +123,7 @@ _CORE_VARS = {
     'withConversationQueryHighlights': True,
     'withMessageQueryHighlights': True,
     'withMessages': True,
+    'withGrokTranslatedBio': False,
 }
 
 # Core features
@@ -149,13 +159,13 @@ _DISABLED_FEATURES = {
     'responsive_web_text_conversations_enabled': False,
     'responsive_web_profile_redirect_enabled': False,
     'responsive_web_jetfuel_frame': False,
-    'rweb_tipjar_consumption_enabled': False,
     'tweet_awards_web_tipping_enabled': False,
     'verified_phone_label_enabled': False,
     'creator_subscriptions_quote_tweet_preview_enabled': False,
     'communities_web_enable_tweet_community_results_fetch': False,
-    'profile_label_improvements_pcf_label_in_post_enabled': False,
     'responsive_web_graphql_skip_user_profile_image_extensions_enabled': False,
+    'rweb_tipjar_consumption_enabled': True,
+    'profile_label_improvements_pcf_label_in_post_enabled': True,
 }
 
 # Grok features (all disabled)
@@ -189,6 +199,10 @@ _OTHER_FEATURES = {
     'tweetypie_unmention_optimization_enabled': True,
     'vibe_api_enabled': True,
     'view_counts_everywhere_api_enabled': True,
+    'hidden_profile_subscriptions_enabled': True,
+    'subscriptions_verification_info_is_identity_verified_enabled': True,
+    'responsive_web_twitter_article_notes_tab_enabled': True,
+    'subscriptions_feature_can_gift_premium': True,
 }
 
 default_variables = _CORE_VARS

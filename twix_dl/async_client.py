@@ -1,8 +1,8 @@
-from .models import TweetInfo, TwitterError, TwitterOp, default_features, default_variables, ErrorExtensions
+from .models import TweetInfo, TwitterError, TwitterOp, default_features, default_variables, ErrorExtensions, UserData
 import httpx
 from .utils import get_random_user_agent
 import json
-from .parsers import parse_tweet_info, parse_error
+from .parsers import parse_tweet_info, parse_error, parse_user_info
 
 
 class AsyncTwitterClient:
@@ -45,6 +45,32 @@ class AsyncTwitterClient:
         tweet_info = parse_tweet_info(tweet_json)
         return tweet_info
 
+    async def get_user_by_username(self, screen_name: str) -> UserData | TwitterError:
+        user_json = await self._graphql(TwitterOp.UserByScreenName, variables={"screen_name": screen_name})
+        
+        if "errors" in user_json:
+            return parse_error(user_json["errors"][0])
+            
+        user_data = user_json.get("data", {}).get("user", {}).get("result")
+        if not user_data:
+            return TwitterError(
+                message=f"User {screen_name} not found",
+                code=404,
+                kind="NotFound",
+                name="UserNotFound",
+                source="Client",
+                trace_id=None,
+                extensions=ErrorExtensions(
+                    name="UserNotFound",
+                    source="Client",
+                    code=404,
+                    kind="NotFound",
+                    trace_id=None
+                )
+            )
+            
+        return parse_user_info(user_json)
+
     async def _get_guest_token(self) -> str:
         guest_token_url = "https://api.twitter.com/1.1/guest/activate.json"
 
@@ -71,6 +97,11 @@ class AsyncTwitterClient:
         self._headers["X-Guest-Token"] = guest_token
         url = f"https://api.x.com/graphql/{op.value.operation_id}/{op.value.name}"
         response = await self._client.get(url, params=params, headers=self._headers)
+        response.raise_for_status()
+        
+        if not response.content:
+            raise ValueError("Empty response from Twitter API")
+            
         return response.json()
 
     async def close(self):

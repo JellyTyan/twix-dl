@@ -1,6 +1,6 @@
 [project]
 name = "twix-dl"
-version = "0.2.0"
+version = "0.3.0"
 description = "An unofficial X scraper and downloader"
 authors = [
     { name="JellyTyan", email="jellytyan@jellytyan.de" }
@@ -20,7 +20,8 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "httpx>=0.24.0"
+    "httpx[http2]>=0.24.0",
+    "xclienttransaction==1.0.1"
 ]
 
 [project.urls]
